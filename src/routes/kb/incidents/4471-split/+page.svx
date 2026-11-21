@@ -1,0 +1,65 @@
+---
+layout: runbook
+title: '#4471 is three problems, not one'
+owner: wojtasdev
+status: proposed
+reviewed: 2026-11-21
+signature: wojtasdev
+---
+
+<script>
+  import reports from '#lib/data/reports-4471.json';
+  import notes from '#lib/data/desk-notes.json';
+  import { groupByCause, readAs, uniqueById } from '#lib/kb/causes';
+  import { tenantOf } from '#lib/kb/locales';
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+
+  const merged = uniqueById(reports).filter((r) => r.mergedInto === 4471);
+  const groups = groupByCause(merged, tenantOf);
+  const parserGroup = groups.find((g) => g.cause === 'parser');
+  const hintGroup = groups.find((g) => g.cause === 'hint');
+  const oneDayMoveCount = readAs(parserGroup, notes.oneDayMove);
+  const parserOnly = parserGroup.reports.length - oneDayMoveCount;
+  const accounted = parserOnly + hintGroup.reports.length + oneDayMoveCount;
+</script>
+
+[#4471](/kb/incidents/4471) merged **412 reports** into one ticket and called it known: "the parser reads
+dates month first, and our tenants write the day first." That is true for most of them. It is not true
+for all of them.
+
+<CauseTable ticket={4471} />
+
+The table's own footnote already says it: {oneDayMoveCount} of the reports filed under `parser` were
+read by the desk as a one-day move, not a month/day swap — see `desk-notes.json`. Read their bodies and
+it holds: "Client in Lisbon got Tuesday. Client in Toronto got Monday. Same meeting. We held it twice."
+is a timezone/day-boundary bug, not a transposed date. It has never had a ticket of its own.
+
+## Three problems, not one
+
+1. **parser** — the shared parser reads every date month-first; any day-first tenant gets it flipped,
+   on any channel, unless the `hint` bug below already explains the report. **{parserOnly} reports**,
+   {parserGroup.tenants} tenants. → [issue](https://github.com/wojtasdev/mega-s01e03-what-it-shows/issues/1)
+2. **hint** — `booking-v3`'s on-screen date hint says `MM/DD/YYYY` no matter the tenant's own locale;
+   day-first-locale people read the hint and type the date month-first by hand, and the form stores
+   exactly what they typed. A UI/copy bug, not a parsing bug — needs a different fix.
+   **{hintGroup.reports.length} reports**, {hintGroup.tenants} tenants (all three on `booking-v3`).
+   → [issue](https://github.com/wojtasdev/mega-s01e03-what-it-shows/issues/2)
+3. **one-day move** — not a date-order bug at all: a one-day shift, timezone-shaped. Filed under
+   `parser` by the mechanical tenant+channel classifier because nothing else was looking for it.
+   **{oneDayMoveCount} reports**. → [issue](https://github.com/wojtasdev/mega-s01e03-what-it-shows/issues/3)
+
+<Callout kind="warn">
+{parserOnly} + {hintGroup.reports.length} + {oneDayMoveCount} = {accounted} of #4471's 412. One ticket,
+one fix, does not close all three.
+</Callout>
+
+## Lessons
+
+- A ticket's own footnote can hold the next ticket. Read it before you close the big one.
+- "Known" described the loudest bug, not the only one.
+- The automatic classifier (tenant + channel) is a good first cut, not a verdict — it has no way to see
+  a report that is about something else entirely.
+
+<RenderStamp signature="wojtasdev" />
