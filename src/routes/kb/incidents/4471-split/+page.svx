@@ -4,7 +4,7 @@ title: '#4471 is three problems, not one'
 owner: wojtasdev
 status: proposed
 reviewed: 2026-11-21
-signature: wojtasdev
+signature: v1.eyJzdWIiOiIxMjcwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTUyNjA3NTQsImV4cCI6MTc5NTM0NzE1NH0.ZQx2yVbyWZrPkkHQOxdwmBotOuRxpW5et1w5CkDwXNo
 ---
 
 <script>
@@ -62,4 +62,4 @@ one fix, does not close all three.
 - The automatic classifier (tenant + channel) is a good first cut, not a verdict — it has no way to see
   a report that is about something else entirely.
 
-<RenderStamp signature="wojtasdev" />
+<RenderStamp signature="v1.eyJzdWIiOiIxMjcwIiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTUyNjA3NTQsImV4cCI6MTc5NTM0NzE1NH0.ZQx2yVbyWZrPkkHQOxdwmBotOuRxpW5et1w5CkDwXNo" />
